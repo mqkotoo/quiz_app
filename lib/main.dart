@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:quiz_app/quiz_brain.dart';
 
+import 'package:rflutter_alert/rflutter_alert.dart';
+
 QuizBrain quizBrain = QuizBrain();
 
 void main() => runApp(QuizApp());
@@ -10,6 +12,7 @@ class QuizApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         backgroundColor: Colors.grey.shade900,
         body: SafeArea(
@@ -35,20 +38,29 @@ class _QuizPageState extends State<QuizPage> {
     bool correctAnswer = quizBrain.getQuestionAnswer();
 
     setState(() {
-    if (userPickedAnswer == correctAnswer) {
-      scoreBoard.add(
-        Icon(
-          Icons.check,
-          color: Colors.green,
-        ),
-      );
-    } else {
-      scoreBoard.add(
-        Icon(Icons.close, color: Colors.red),
-      );
-    }
+      if (quizBrain.isFinished() == true) {
 
-      quizBrain.nextQuestion();
+        onBasicAlertPressed(context);
+
+        quizBrain.reset();
+
+        scoreBoard = [];
+      }
+      else {
+        if (userPickedAnswer == correctAnswer) {
+          scoreBoard.add(Icon(
+            Icons.check,
+            color: Colors.green,
+          ));
+        } else {
+          scoreBoard.add(Icon(
+            Icons.close,
+            color: Colors.red,
+          ));
+        }
+        quizBrain.nextQuestion();
+      }
+
     });
   }
 
@@ -128,8 +140,21 @@ class _QuizPageState extends State<QuizPage> {
   }
 }
 
-/*
-question1: 'You can lead a cow down stairs but not up stairs.', false,
-question2: 'Approximately one quarter of human bones are in the feet.', true,
-question3: 'A slug\'s blood is green.', true,
-*/
+
+onBasicAlertPressed(context) {
+  Alert(
+    context: context,
+    title: "終わり!",
+    desc: "クイズが終わりました!",
+    buttons: [
+      DialogButton(
+        child: Text(
+          "閉じる",
+          style: TextStyle(color: Colors.white, fontSize: 20),
+        ),
+        onPressed: () => Navigator.pop(context),
+        width: 120,
+      )
+    ],
+  ).show();
+}
